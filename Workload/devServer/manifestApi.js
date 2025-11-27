@@ -11,17 +11,31 @@ const { buildManifestPackage } = require('./build-manifest');
 const router = express.Router();
 
 /**
- * OPTIONS handler for CORS preflight requests
+ * Global CORS middleware for this router
  */
-router.options('/manifests_new*', (req, res) => {
-  res.header({
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Max-Age': '86400' // 24 hours
-  });
-  res.sendStatus(204); // No content needed for OPTIONS response
-  console.log("Handled CORS preflight request for manifest endpoint.");
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Allow-Private-Network', 'true');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+
+  // Intercept OPTIONS method
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204);
+  } else {
+    next();
+  }
+});
+
+/**
+ * Redirect /manifests to /manifests_new to handle Fabric path mismatch
+ */
+router.use('/manifests', (req, res) => {
+  // Redirect to the same path but with /manifests_new prefix
+  const newPath = req.originalUrl.replace('/manifests', '/manifests_new');
+  console.log(`Redirecting ${req.originalUrl} to ${newPath}`);
+  res.redirect(newPath);
 });
 
 /**
@@ -33,7 +47,8 @@ router.get('/manifests_new/metadata', (req, res) => {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Cache-Control': 'no-store'
   });
 
   const devParameters = {

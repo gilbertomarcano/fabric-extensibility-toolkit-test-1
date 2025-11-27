@@ -9,8 +9,8 @@ const { registerDevServerApis } = require('.'); // Import our manifest API
 // TODO: once we use the manifest for publishing we can remove this.
 process.env.DEV_AAD_CONFIG_FE_APPID = process.env.FRONTEND_APPID;
 process.env.DEV_AAD_CONFIG_BE_APPID = process.env.BACKEND_APPID;
-process.env.DEV_AAD_CONFIG_BE_AUDIENCE= ""
-process.env.DEV_AAD_CONFIG_BE_REDIRECT_URI=process.env.BACKEND_URL;
+process.env.DEV_AAD_CONFIG_BE_AUDIENCE = ""
+process.env.DEV_AAD_CONFIG_BE_REDIRECT_URI = process.env.BACKEND_URL;
 
 
 console.log('********************   Development Configuration   *******************');
@@ -50,13 +50,13 @@ module.exports = merge(baseConfig, {
 
             // Add JSON body parsing middleware for our APIs
             devServer.app.use(express.json());
-            
+
             // Add global CORS middleware
             devServer.app.use((req, res, next) => {
                 res.header('Access-Control-Allow-Origin', '*');
                 res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
                 res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-                
+
                 // Handle preflight requests
                 if (req.method === 'OPTIONS') {
                     res.sendStatus(204);
@@ -64,7 +64,7 @@ module.exports = merge(baseConfig, {
                     next();
                 }
             });
-            
+
             // Register the manifest API from our extracted implementation
             registerDevServerApis(devServer.app);
 
