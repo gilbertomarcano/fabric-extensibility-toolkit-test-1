@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Provider } from "react-redux";
 import { ClientSDKStore } from "./playground/ClientSDKPlayground/Store/Store";
 import { Route, Router, Switch } from "react-router-dom";
@@ -8,7 +8,7 @@ import CustomItemSettings from "./items/HelloWorldItem/HelloWorldItemEditorSetti
 import CustomAbout from "./items/HelloWorldItem/HelloWorldItemEditorAboutPage";
 import { SamplePage, ClientSDKPlayground } from "./playground/ClientSDKPlayground/ClientSDKPlayground";
 import { DataPlayground } from "./playground/DataPlayground/DataPlayground";
-import { HelloWorldItemEditor} from "./items/HelloWorldItem/HelloWorldItemEditor";
+import { HelloWorldItemEditor } from "./items/HelloWorldItem/HelloWorldItemEditor";
 
 /*
     Add your Item Editor in the Route section of the App function below
@@ -35,6 +35,20 @@ export interface SharedState {
 }
 
 export function App({ history, workloadClient }: AppProps) {
+    const [backendUrl, setBackendUrl] = useState("http://localhost:8080");
+    const [backendResponse, setBackendResponse] = useState<string>("");
+
+    const pingBackend = async () => {
+        try {
+            setBackendResponse("Loading...");
+            const response = await fetch(backendUrl);
+            const data = await response.json();
+            setBackendResponse(JSON.stringify(data, null, 2));
+        } catch (error) {
+            setBackendResponse(`Error: ${error.message}`);
+        }
+    };
+
     console.log('🎯 App component rendering with history:', history);
     console.log('🎯 Current location:', history.location);
 
@@ -45,26 +59,48 @@ export function App({ history, workloadClient }: AppProps) {
                 <h1>🎉 Workload is running!</h1>
                 <p>Current URL: {window.location.href}</p>
                 <p>Workload Name: {process.env.WORKLOAD_NAME}</p>
+
+                <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', backgroundColor: 'white' }}>
+                    <h2>Backend Connection Test</h2>
+                    <div style={{ marginBottom: '10px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px' }}>Backend URL:</label>
+                        <input
+                            type="text"
+                            value={backendUrl}
+                            onChange={(e) => setBackendUrl(e.target.value)}
+                            style={{ width: '100%', padding: '5px' }}
+                        />
+                    </div>
+                    <button onClick={pingBackend} style={{ padding: '5px 10px', cursor: 'pointer' }}>
+                        Ping Backend
+                    </button>
+                    <div style={{ marginTop: '10px' }}>
+                        <strong>Response:</strong>
+                        <pre style={{ backgroundColor: '#eee', padding: '10px', overflowX: 'auto' }}>
+                            {backendResponse}
+                        </pre>
+                    </div>
+                </div>
             </div>
-        </Route>    
+        </Route>
         <Switch>
             {/* Routings for the Hello World Item Editor */}
             <Route path="/HelloWorldItem-editor/:itemObjectId">
                 <HelloWorldItemEditor
                     workloadClient={workloadClient} data-testid="HelloWorldItem-editor" />
             </Route>
-            
+
             <Route path="/HelloWorldItem-settings-page/:itemObjectId">
-                <CustomItemSettings 
+                <CustomItemSettings
                     workloadClient={workloadClient}
-                        data-testid="HelloWorldItem-settings-page" />
+                    data-testid="HelloWorldItem-settings-page" />
             </Route>
             <Route path="/HelloWorldItem-about-page/:itemObjectId">
-                <CustomAbout  workloadClient={workloadClient} 
+                <CustomAbout workloadClient={workloadClient}
                     data-testid="HelloWorldItem-about-page" />
             </Route>
 
-             {/* Playground routes  can be deleted if not needed */}
+            {/* Playground routes  can be deleted if not needed */}
             <Route path="/client-sdk-playground">
                 <Provider store={ClientSDKStore}>
                     <ClientSDKPlayground workloadClient={workloadClient} />
