@@ -27,9 +27,13 @@
             "ES2017",
             "DOM"
         ],
+        "baseUrl": ".",
         "paths": {
             "src/*": [
                 "./app/*"
+            ],
+            "@fluentui/react": [
+                "./node_modules/@fluentui/react/lib/index.d.ts"
             ]
         }
     }
