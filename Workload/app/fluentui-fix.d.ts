@@ -1,1 +1,1 @@
-/// <reference path="../node_modules/@fluentui/react/lib/index.d.ts" />
+declare module '@fluentui/react';

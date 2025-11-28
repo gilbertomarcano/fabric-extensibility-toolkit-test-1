@@ -1,6 +1,5 @@
 import { bootstrap } from '@ms-fabric/workload-client';
 import './i18n';
-import './fluentui-fix';
 
 function printFormattedAADErrorMessage(hashMessage: string): void {
     const hashString = hashMessage.slice(1);

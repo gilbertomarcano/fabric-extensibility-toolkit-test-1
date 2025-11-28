@@ -36,5 +36,8 @@
                 "./node_modules/@fluentui/react/lib/index.d.ts"
             ]
         }
-    }
+    },
+    "include": [
+        "app/**/*"
+    ]
 }
