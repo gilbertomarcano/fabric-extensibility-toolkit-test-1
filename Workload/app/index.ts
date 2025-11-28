@@ -1,5 +1,6 @@
 import { bootstrap } from '@ms-fabric/workload-client';
 import './i18n';
+import './fluentui-fix';
 
 function printFormattedAADErrorMessage(hashMessage: string): void {
     const hashString = hashMessage.slice(1);
@@ -61,7 +62,7 @@ bootstrap({
     initializeUI: (params) => {
         console.log('🎨 Initializing UI with params:', params);
         return import('./index.ui').then(({ initialize }) => {
-            return initialize(params);            
+            return initialize(params);
         });
     },
 });
