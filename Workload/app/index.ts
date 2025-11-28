@@ -51,17 +51,33 @@ console.log('process.env.WORKLOAD_NAME: ' + process.env.WORKLOAD_NAME);
 console.log('**************************************');
 
 console.log('🚀 Starting bootstrap process...');
-bootstrap({
-    initializeWorker: (params) => {
-        console.log('👷 Initializing worker with params:', params);
-        return import('./index.worker').then(({ initialize }) => {
-            return initialize(params);
-        });
-    },
-    initializeUI: (params) => {
-        console.log('🎨 Initializing UI with params:', params);
-        return import('./index.ui').then(({ initialize }) => {
-            return initialize(params);
-        });
-    },
-});
+
+// Check for standalone mode to bypass Fabric SDK bootstrap
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has("standalone")) {
+    console.log('⚠️ Running in STANDALONE mode (Bypassing Fabric Bootstrap)');
+    import('./index.ui').then(({ initialize }) => {
+        initialize({
+            host: "standalone",
+            type: "Item",
+            id: "standalone-id",
+            workspaceId: "standalone-workspace",
+            // Mock other required params if necessary
+        } as any);
+    });
+} else {
+    bootstrap({
+        initializeWorker: (params) => {
+            console.log('👷 Initializing worker with params:', params);
+            return import('./index.worker').then(({ initialize }) => {
+                return initialize(params);
+            });
+        },
+        initializeUI: (params) => {
+            console.log('🎨 Initializing UI with params:', params);
+            return import('./index.ui').then(({ initialize }) => {
+                return initialize(params);
+            });
+        },
+    });
+}
