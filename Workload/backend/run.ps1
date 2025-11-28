@@ -2,6 +2,15 @@
 if (-not (Test-Path ".venv")) {
     Write-Host "Creating virtual environment..."
     python3 -m venv .venv
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Venv module missing. Attempting to install dependencies (requires sudo)..."
+        sh -c "sudo apt-get update && sudo apt-get install -y python3-venv python3-pip"
+        python3 -m venv .venv
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to create virtual environment even after attempting install. Please install python3-venv manually."
+            exit 1
+        }
+    }
 }
 
 # Define path to python executable in venv
