@@ -43,7 +43,7 @@
     "description": "Workload_Description",
     "cards": [
       {
-        "title": "Markdown Document",
+        "title": "MarkdownDoc",
         "description": "HelloWorldItem_Description",
         "icon": {
           "name": "assets/images/HelloWorldItem-icon.png"
