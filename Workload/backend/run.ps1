@@ -1,3 +1,6 @@
+# Set context to the script's directory
+Set-Location $PSScriptRoot
+
 # Create virtual environment if it doesn't exist
 if (-not (Test-Path ".venv")) {
     Write-Host "Creating virtual environment..."
