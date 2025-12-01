@@ -1,8 +1,8 @@
 {
   "name": "MarkdownDoc",
   "version": "1.100",
-  "displayName": "Markdown Document",
-  "displayNamePlural": "Markdown Documents",
+  "displayName": "MarkdownDoc",
+  "displayNamePlural": "MarkdownDocs",
   "editor": {
     "path": "/MarkdownDoc-editor"
   },
