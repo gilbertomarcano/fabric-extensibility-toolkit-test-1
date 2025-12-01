@@ -1,5 +1,18 @@
-history: History;
-workloadClient: WorkloadClientAPI;
+import React, { useState } from "react";
+import { Provider } from "react-redux";
+import { ClientSDKStore } from "./playground/ClientSDKPlayground/Store/Store";
+import { Route, Router, Switch } from "react-router-dom";
+import { History } from "history";
+import { WorkloadClientAPI } from "@ms-fabric/workload-client";
+import CustomItemSettings from "./items/MarkdownDocItem/HelloWorldItemEditorSettingsPage";
+import CustomAbout from "./items/MarkdownDocItem/HelloWorldItemEditorAboutPage";
+import { SamplePage, ClientSDKPlayground } from "./playground/ClientSDKPlayground/ClientSDKPlayground";
+import { DataPlayground } from "./playground/DataPlayground/DataPlayground";
+import { MarkdownDocEditor } from "./items/MarkdownDocItem/MarkdownDocEditor";
+
+interface AppProps {
+    history: History;
+    workloadClient: WorkloadClientAPI;
 }
 
 export interface PageProps {
@@ -32,8 +45,15 @@ export function App({ history, workloadClient }: AppProps) {
         }
     };
 
-    console.log('🎯 App component rendering with history:', history);
-    console.log('🎯 Current location:', history.location);
+    console.log('🎯 App component rendering');
+    console.log('🎯 window.location.href:', window.location.href);
+    console.log('🎯 history.location:', history.location);
+    console.log('🎯 history.location.pathname:', history.location.pathname);
+
+    // Force check if we are in an editor context but history says '/'
+    if (window.location.href.includes('MarkdownDoc-editor') && history.location.pathname === '/') {
+        console.warn('⚠️ URL contains MarkdownDoc-editor but history is /. This might indicate a routing sync issue.');
+    }
 
     return <Router history={history}>
         {/* Test route for debugging */}
@@ -61,25 +81,41 @@ export function App({ history, workloadClient }: AppProps) {
                         <strong>Response:</strong>
                         <pre style={{ backgroundColor: '#eee', padding: '10px', overflowX: 'auto' }}>
                             {backendResponse}
-                        </Route>
-                        <Route path="/HelloWorldItem-about-page/:itemObjectId">
-                            <CustomAbout workloadClient={workloadClient}
-                                data-testid="HelloWorldItem-about-page" />
-                        </Route>
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </Route>
+        <Switch>
+            {/* Routings for the Markdown Document Editor */}
+            <Route path="/MarkdownDoc-editor/:itemObjectId">
+                <MarkdownDocEditor
+                    workloadClient={workloadClient} data-testid="MarkdownDoc-editor" />
+            </Route>
 
-                        {/* Playground routes  can be deleted if not needed */}
-                        <Route path="/client-sdk-playground">
-                            <Provider store={ClientSDKStore}>
-                                <ClientSDKPlayground workloadClient={workloadClient} />
-                            </Provider>
-                        </Route>
-                        <Route path="/data-playground">
-                            <DataPlayground workloadClient={workloadClient} />
-                        </Route>
+            <Route path="/HelloWorldItem-settings-page/:itemObjectId">
+                <CustomItemSettings
+                    workloadClient={workloadClient}
+                    data-testid="HelloWorldItem-settings-page" />
+            </Route>
+            <Route path="/HelloWorldItem-about-page/:itemObjectId">
+                <CustomAbout workloadClient={workloadClient}
+                    data-testid="HelloWorldItem-about-page" />
+            </Route>
 
-                        <Route path="/sample-page">
-                            <SamplePage workloadClient={workloadClient} />
-                        </Route>
-                    </Switch>
-                </Router>;
+            {/* Playground routes  can be deleted if not needed */}
+            <Route path="/client-sdk-playground">
+                <Provider store={ClientSDKStore}>
+                    <ClientSDKPlayground workloadClient={workloadClient} />
+                </Provider>
+            </Route>
+            <Route path="/data-playground">
+                <DataPlayground workloadClient={workloadClient} />
+            </Route>
+
+            <Route path="/sample-page">
+                <SamplePage workloadClient={workloadClient} />
+            </Route>
+        </Switch>
+    </Router>;
 }
