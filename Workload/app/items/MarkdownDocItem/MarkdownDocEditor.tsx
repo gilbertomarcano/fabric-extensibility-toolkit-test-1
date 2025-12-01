@@ -25,34 +25,47 @@ export function MarkdownDocEditor(props: PageProps) {
   const [currentView, setCurrentView] = useState<CurrentView>(VIEW_TYPES.EMPTY);
   const [hasBeenSaved, setHasBeenSaved] = useState<boolean>(false);
 
+  // New state for content
+  const [content, setContent] = useState<string>("");
+
   const { pathname } = useLocation();
 
   async function loadDataFromUrl(pageContext: ContextProps, pathname: string): Promise<void> {
     setIsLoading(true);
     var LoadedItem: ItemWithDefinition<HelloWorldItemDefinition> = undefined;
     if (pageContext.itemObjectId) {
-      // for Edit scenario we get the itemObjectId and then load the item via the workloadClient SDK
       try {
         LoadedItem = await getWorkloadItem<HelloWorldItemDefinition>(
           workloadClient,
           pageContext.itemObjectId,
         );
 
-        // Ensure item definition is properly initialized without mutation
         if (!LoadedItem.definition) {
           LoadedItem = {
             ...LoadedItem,
-            definition: {
-              state: undefined,
-            }
+            definition: { state: undefined }
           };
-        }
-        else {
-          console.log('LoadedItem definition: ', LoadedItem.definition);
         }
 
         setItem(LoadedItem);
         setCurrentView(!LoadedItem?.definition?.state ? VIEW_TYPES.EMPTY : VIEW_TYPES.GETTING_STARTED);
+
+        // Fetch content if we have an item
+        if (LoadedItem && LoadedItem.definition?.state) {
+          try {
+            const response = await fetch(`http://localhost:8080/GetItemPayload/${LoadedItem.workspaceId}/${LoadedItem.id}`);
+            if (response.ok) {
+              const data = await response.json();
+              setContent(data.content);
+            } else {
+              console.error("Failed to fetch content: HTTP status", response.status);
+              setContent("# Error loading content");
+            }
+          } catch (error) {
+            console.error("Failed to fetch content:", error);
+            setContent("# Error loading content");
+          }
+        }
 
       } catch (error) {
         setItem(undefined);
@@ -88,12 +101,44 @@ export function MarkdownDocEditor(props: PageProps) {
   };
 
   async function SaveItem() {
+    // 1. Save Item Definition (Metadata)
     var successResult = await saveItemDefinition<HelloWorldItemDefinition>(
       workloadClient,
       item.id,
       {
         state: VIEW_TYPES.GETTING_STARTED
       });
+
+    // 2. Save Content to Backend (OneLake)
+    try {
+      const response = await fetch("http://localhost:8080/UpdateItem", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          workspaceId: item.workspaceId,
+          itemId: item.id,
+          content: content
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save content to backend");
+      }
+      console.log("Content saved successfully to OneLake");
+    } catch (error) {
+      console.error("Error saving content:", error);
+      callNotificationOpen(
+        props.workloadClient,
+        "Error Saving Content",
+        "Could not save content to OneLake. Please try again.",
+        undefined,
+        undefined
+      );
+      return; // Don't show success notification if content save failed
+    }
+
     const wasSaved = Boolean(successResult);
     setHasBeenSaved(wasSaved);
     callNotificationOpen(
@@ -106,22 +151,10 @@ export function MarkdownDocEditor(props: PageProps) {
   }
 
   const isSaveEnabled = () => {
-    if (currentView === VIEW_TYPES.EMPTY) {
-      return false;
-    }
-
+    // Always enable save if we are in the editor view
     if (currentView === VIEW_TYPES.GETTING_STARTED) {
-      if (hasBeenSaved) {
-        return false;
-      }
-
-      if (!item?.definition?.state) {
-        return true;
-      }
-
-      return false;
+      return true;
     }
-
     return false;
   };
 
@@ -156,6 +189,8 @@ export function MarkdownDocEditor(props: PageProps) {
         <MarkdownDocEditorDefault
           workloadClient={workloadClient}
           item={item}
+          content={content}
+          onChange={setContent}
         />
       )}
     </Stack>

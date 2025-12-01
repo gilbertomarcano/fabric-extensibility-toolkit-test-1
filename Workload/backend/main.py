@@ -103,3 +103,36 @@ async def get_item_payload(workspace_id: str, item_id: str):
     except Exception as e:
         print(f"Error en GetItemPayload: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+class UpdateItemPayload(BaseModel):
+    workspaceId: str
+    itemId: str
+    content: str
+
+@app.post("/UpdateItem")
+async def update_item(payload: UpdateItemPayload):
+    print(f"UpdateItem llamado para Workspace: {payload.workspaceId}, Item: {payload.itemId}")
+    
+    try:
+        # Construir la URL de OneLake
+        account_name = "onelake"
+        account_url = f"https://{account_name}.dfs.fabric.microsoft.com"
+        
+        credential = DefaultAzureCredential()
+        service_client = DataLakeServiceClient(account_url=account_url, credential=credential)
+        file_system_client = service_client.get_file_system_client(file_system=payload.workspaceId)
+        
+        # Ruta del archivo: <itemId>/Files/content.md
+        file_path = f"{payload.itemId}/Files/content.md"
+        
+        file_client = file_system_client.get_file_client(file_path)
+        
+        # Sobrescribir el contenido
+        file_client.upload_data(payload.content, overwrite=True)
+        
+        print(f"Archivo actualizado exitosamente en: {file_path}")
+        return {"message": "Archivo actualizado exitosamente"}
+
+    except Exception as e:
+        print(f"Error en UpdateItem: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
