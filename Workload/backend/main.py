@@ -74,3 +74,32 @@ async def create_item(payload: CreateItemPayload):
         print(f"Error en CreateItem: {e}")
         # Retornamos 500 pero con el detalle para depuración
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/GetItemPayload/{workspace_id}/{item_id}")
+async def get_item_payload(workspace_id: str, item_id: str):
+    print(f"GetItemPayload llamado para Workspace: {workspace_id}, Item: {item_id}")
+    
+    try:
+        # Construir la URL de OneLake
+        account_name = "onelake"
+        account_url = f"https://{account_name}.dfs.fabric.microsoft.com"
+        
+        credential = DefaultAzureCredential()
+        service_client = DataLakeServiceClient(account_url=account_url, credential=credential)
+        file_system_client = service_client.get_file_system_client(file_system=workspace_id)
+        
+        # Ruta del archivo: <itemId>/Files/content.md
+        file_path = f"{item_id}/Files/content.md"
+        
+        file_client = file_system_client.get_file_client(file_path)
+        
+        # Leer el contenido del archivo
+        download = file_client.download_file()
+        content = download.readall().decode("utf-8")
+        
+        print(f"Contenido leído exitosamente de: {file_path}")
+        return {"content": content}
+
+    except Exception as e:
+        print(f"Error en GetItemPayload: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
