@@ -53,8 +53,10 @@ async def create_item(payload: CreateItemPayload):
         # En Fabric, el FileSystem suele ser el Workspace ID
         file_system_client = service_client.get_file_system_client(file_system=payload.workspaceId)
         
-        # Ruta del archivo: MarkdownStore/Files/<itemId>.md
-        file_path = f"MarkdownStore/Files/{payload.itemId}.md"
+        # Ruta del archivo: <itemId>/content.md
+        # En OneLake, la estructura es <Workspace>/<Item>/...
+        # Por lo tanto, el primer segmento del path debe ser el ItemId (GUID).
+        file_path = f"{payload.itemId}/content.md"
         
         # Crear el cliente de archivo
         file_client = file_system_client.get_file_client(file_path)
