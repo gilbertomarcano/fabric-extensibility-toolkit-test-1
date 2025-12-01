@@ -21,4 +21,5 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "Hola desde el Backend de Fabric"}
+    print("Fase 0: Verificación de despliegue - Backend alcanzado")
+    return {"message": "Hola desde el Backend de Fabric - Fase 0 Validada"}
