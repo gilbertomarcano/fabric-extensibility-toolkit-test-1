@@ -4,12 +4,12 @@ import {
 } from "@fluentui/react-components";
 import { WorkloadClientAPI } from "@ms-fabric/workload-client";
 import { ItemWithDefinition } from "../../controller/ItemCRUDController";
-import { HelloWorldItemDefinition } from "./HelloWorldItemModel";
+import { MarkdownDocItemDefinition } from "./MarkdownDocItemModel";
 import "../../styles.scss";
 
 interface MarkdownDocEditorDefaultProps {
   workloadClient: WorkloadClientAPI;
-  item?: ItemWithDefinition<HelloWorldItemDefinition>;
+  item?: ItemWithDefinition<MarkdownDocItemDefinition>;
   content: string;
   onChange: (newContent: string) => void;
 }
@@ -30,15 +30,21 @@ export function MarkdownDocEditorDefault({
       <textarea
         style={{
           width: '100%',
-          height: '500px',
-          fontFamily: 'monospace',
-          padding: '10px',
-          border: '1px solid #ccc',
+          height: 'calc(100vh - 100px)', // Occupy most of the screen
+          fontFamily: 'Consolas, "Courier New", monospace',
+          fontSize: '14px',
+          lineHeight: '1.5',
+          padding: '15px',
+          border: '1px solid #e0e0e0',
           borderRadius: '4px',
-          resize: 'vertical'
+          resize: 'none', // Disable resize as it fills the container
+          outline: 'none',
+          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
         }}
         value={content}
         onChange={(e) => onChange(e.target.value)}
+        placeholder="Escribe tu documento Markdown aquí..."
+        spellCheck={false}
       />
     </div>
   );

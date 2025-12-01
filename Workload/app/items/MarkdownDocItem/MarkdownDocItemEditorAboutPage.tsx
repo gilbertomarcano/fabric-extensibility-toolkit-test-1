@@ -1,10 +1,10 @@
 import React from 'react';
 import { PageProps } from '../../App';
 
-export function HelloWorldItemEditorAboutPage(props: PageProps) {
+export function MarkdownDocItemEditorAboutPage(props: PageProps) {
     return (
         <div>
-            This is a custom about page for the HelloWorld Item Editor.
+            This is a custom about page for the MarkdownDoc Item Editor.
             <br />
             You can use this page to provide information about the item editor, its features, and how to use it.            
             
@@ -12,4 +12,4 @@ export function HelloWorldItemEditorAboutPage(props: PageProps) {
     );
 }
 
-export default HelloWorldItemEditorAboutPage;
+export default MarkdownDocItemEditorAboutPage;

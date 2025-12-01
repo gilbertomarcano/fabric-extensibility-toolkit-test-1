@@ -7,12 +7,11 @@ import { ItemWithDefinition, getWorkloadItem, callGetItem, saveItemDefinition } 
 import { callOpenSettings } from "../../controller/SettingsController";
 import { callNotificationOpen } from "../../controller/NotificationController";
 import { ItemEditorLoadingProgressBar } from "../../controls/ItemEditorLoadingProgressBar";
-import { HelloWorldItemDefinition, VIEW_TYPES, CurrentView } from "./HelloWorldItemModel";
-import { HelloWorldItemEditorEmpty } from "./HelloWorldItemEditorEmpty";
+import { MarkdownDocItemDefinition, VIEW_TYPES, CurrentView } from "./MarkdownDocItemModel";
+import { MarkdownDocItemEditorEmpty } from "./MarkdownDocItemEditorEmpty";
 import { MarkdownDocEditorDefault } from "./MarkdownDocEditorDefault";
 import "../../styles.scss";
-import { HelloWorldItemRibbon } from "./HelloWorldItemRibbon";
-
+import { MarkdownDocItemRibbon } from "./MarkdownDocItemRibbon";
 
 export function MarkdownDocEditor(props: PageProps) {
   const { workloadClient } = props;
@@ -21,9 +20,8 @@ export function MarkdownDocEditor(props: PageProps) {
 
   // State management
   const [isLoading, setIsLoading] = useState(true);
-  const [item, setItem] = useState<ItemWithDefinition<HelloWorldItemDefinition>>();
+  const [item, setItem] = useState<ItemWithDefinition<MarkdownDocItemDefinition>>();
   const [currentView, setCurrentView] = useState<CurrentView>(VIEW_TYPES.EMPTY);
-  const [hasBeenSaved, setHasBeenSaved] = useState<boolean>(false);
 
   // New state for content
   const [content, setContent] = useState<string>("");
@@ -32,10 +30,10 @@ export function MarkdownDocEditor(props: PageProps) {
 
   async function loadDataFromUrl(pageContext: ContextProps, pathname: string): Promise<void> {
     setIsLoading(true);
-    var LoadedItem: ItemWithDefinition<HelloWorldItemDefinition> = undefined;
+    var LoadedItem: ItemWithDefinition<MarkdownDocItemDefinition> = undefined;
     if (pageContext.itemObjectId) {
       try {
-        LoadedItem = await getWorkloadItem<HelloWorldItemDefinition>(
+        LoadedItem = await getWorkloadItem<MarkdownDocItemDefinition>(
           workloadClient,
           pageContext.itemObjectId,
         );
@@ -77,7 +75,7 @@ export function MarkdownDocEditor(props: PageProps) {
   }
 
   useEffect(() => {
-    setHasBeenSaved(false);
+    // Effect for view changes
   }, [currentView, item?.id]);
 
   useEffect(() => {
@@ -102,7 +100,7 @@ export function MarkdownDocEditor(props: PageProps) {
 
   async function SaveItem() {
     // 1. Save Item Definition (Metadata)
-    var successResult = await saveItemDefinition<HelloWorldItemDefinition>(
+    await saveItemDefinition<MarkdownDocItemDefinition>(
       workloadClient,
       item.id,
       {
@@ -139,8 +137,6 @@ export function MarkdownDocEditor(props: PageProps) {
       return; // Don't show success notification if content save failed
     }
 
-    const wasSaved = Boolean(successResult);
-    setHasBeenSaved(wasSaved);
     callNotificationOpen(
       props.workloadClient,
       t("ItemEditor_Saved_Notification_Title"),
@@ -171,7 +167,7 @@ export function MarkdownDocEditor(props: PageProps) {
   // Render appropriate view based on state
   return (
     <Stack className="editor" data-testid="item-editor-inner">
-      <HelloWorldItemRibbon
+      <MarkdownDocItemRibbon
         {...props}
         isSaveButtonEnabled={isSaveEnabled()}
         currentView={currentView}
@@ -180,7 +176,7 @@ export function MarkdownDocEditor(props: PageProps) {
         navigateToGettingStartedCallback={navigateToGettingStarted}
       />
       {currentView === VIEW_TYPES.EMPTY ? (
-        <HelloWorldItemEditorEmpty
+        <MarkdownDocItemEditorEmpty
           workloadClient={workloadClient}
           item={item}
           onNavigateToGettingStarted={navigateToGettingStarted}

@@ -10,14 +10,14 @@ import {
   Rocket24Regular
 } from "@fluentui/react-icons";
 import { PageProps } from '../../App';
-import { CurrentView, VIEW_TYPES } from "./HelloWorldItemModel";
+import { CurrentView, VIEW_TYPES } from "./MarkdownDocItemModel";
 import { useTranslation } from "react-i18next";
 import '../../styles.scss';
 
 /**
  * Props interface for the Empty State Ribbon component
  */
-export interface HelloWorldItemRibbonProps extends PageProps {
+export interface MarkdownDocItemRibbonProps extends PageProps {
   isSaveButtonEnabled?: boolean;
   currentView: CurrentView;
   saveItemCallback: () => Promise<void>;
@@ -26,7 +26,7 @@ export interface HelloWorldItemRibbonProps extends PageProps {
 }
 
 
-const HelloWorldItemTabToolbar: React.FC<HelloWorldItemRibbonProps> = (props) => {
+const MarkdownDocItemTabToolbar: React.FC<MarkdownDocItemRibbonProps> = (props) => {
   const { t } = useTranslation();
 
 
@@ -90,7 +90,7 @@ const HelloWorldItemTabToolbar: React.FC<HelloWorldItemRibbonProps> = (props) =>
 /**
  * Main Ribbon component
  */
-export function HelloWorldItemRibbon(props: HelloWorldItemRibbonProps) {
+export function MarkdownDocItemRibbon(props: MarkdownDocItemRibbonProps) {
   const { t } = useTranslation();
 
   return (
@@ -105,7 +105,7 @@ export function HelloWorldItemRibbon(props: HelloWorldItemRibbonProps) {
 
       {/* Toolbar Container */}
       <div className="toolbarContainer">
-        <HelloWorldItemTabToolbar {...props} />
+        <MarkdownDocItemTabToolbar {...props} />
       </div>
     </div>
   );

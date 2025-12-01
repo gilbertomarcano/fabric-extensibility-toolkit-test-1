@@ -30,13 +30,10 @@ class CreateItemPayload(BaseModel):
 
 @app.get("/")
 async def root():
-    print("Fase 0: Verificación de despliegue - Backend alcanzado")
-    return {"message": "Hola desde el Backend de Fabric - Fase 0 Validada"}
+    return {"message": "Fabric Backend Ready"}
 
 @app.post("/CreateItem")
 async def create_item(payload: CreateItemPayload):
-    print(f"CreateItem llamado para Workspace: {payload.workspaceId}, Item: {payload.itemId}")
-    
     try:
         # Construir la URL de OneLake
         account_name = "onelake"
@@ -67,7 +64,6 @@ async def create_item(payload: CreateItemPayload):
         file_client.create_file()
         file_client.upload_data(initial_content, overwrite=True)
         
-        print(f"Archivo creado exitosamente en: {file_path}")
         return {"message": "Archivo creado exitosamente", "path": file_path}
 
     except Exception as e:
@@ -77,8 +73,6 @@ async def create_item(payload: CreateItemPayload):
 
 @app.get("/GetItemPayload/{workspace_id}/{item_id}")
 async def get_item_payload(workspace_id: str, item_id: str):
-    print(f"GetItemPayload llamado para Workspace: {workspace_id}, Item: {item_id}")
-    
     try:
         # Construir la URL de OneLake
         account_name = "onelake"
@@ -97,7 +91,6 @@ async def get_item_payload(workspace_id: str, item_id: str):
         download = file_client.download_file()
         content = download.readall().decode("utf-8")
         
-        print(f"Contenido leído exitosamente de: {file_path}")
         return {"content": content}
 
     except Exception as e:
@@ -111,8 +104,6 @@ class UpdateItemPayload(BaseModel):
 
 @app.post("/UpdateItem")
 async def update_item(payload: UpdateItemPayload):
-    print(f"UpdateItem llamado para Workspace: {payload.workspaceId}, Item: {payload.itemId}")
-    
     try:
         # Construir la URL de OneLake
         account_name = "onelake"
@@ -130,7 +121,6 @@ async def update_item(payload: UpdateItemPayload):
         # Sobrescribir el contenido
         file_client.upload_data(payload.content, overwrite=True)
         
-        print(f"Archivo actualizado exitosamente en: {file_path}")
         return {"message": "Archivo actualizado exitosamente"}
 
     except Exception as e:

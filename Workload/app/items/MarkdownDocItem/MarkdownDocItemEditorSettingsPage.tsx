@@ -5,9 +5,9 @@ import { PageProps } from '../../App';
 import { useTranslation } from 'react-i18next';
 import '../../styles.scss';
 
-export function HelloWorldItemEditorSettingsPage(props: PageProps) {
+export function MarkdownDocItemEditorSettingsPage(props: PageProps) {
   const { t } = useTranslation();
-  console.log("HelloWorldItemEditorSettingsPage rendered with props:", props);
+  console.log("MarkdownDocItemEditorSettingsPage rendered with props:", props);
   
   return (
     <div className="settings-panel-container">
@@ -24,4 +24,4 @@ export function HelloWorldItemEditorSettingsPage(props: PageProps) {
   );
 }
 
-export default HelloWorldItemEditorSettingsPage;
+export default MarkdownDocItemEditorSettingsPage;
