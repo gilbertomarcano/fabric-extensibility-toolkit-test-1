@@ -1,5 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from azure.storage.filedatalake import DataLakeServiceClient
+from azure.identity import DefaultAzureCredential
+import os
 
 app = FastAPI()
 
@@ -9,6 +13,7 @@ origins = [
     "https://localhost:60006",
     "http://127.0.0.1:60006",
     "https://127.0.0.1:60006",
+    "*" # Allow all for dev
 ]
 
 app.add_middleware(
@@ -19,7 +24,52 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class CreateItemPayload(BaseModel):
+    workspaceId: str
+    itemId: str
+
 @app.get("/")
 async def root():
     print("Fase 0: Verificación de despliegue - Backend alcanzado")
     return {"message": "Hola desde el Backend de Fabric - Fase 0 Validada"}
+
+@app.post("/CreateItem")
+async def create_item(payload: CreateItemPayload):
+    print(f"CreateItem llamado para Workspace: {payload.workspaceId}, Item: {payload.itemId}")
+    
+    try:
+        # Construir la URL de OneLake
+        account_name = "onelake"
+        account_url = f"https://{account_name}.dfs.fabric.microsoft.com"
+        
+        # En un entorno real, aquí usaríamos el token OBO.
+        # Para desarrollo local/Codespace, intentamos usar DefaultAzureCredential 
+        # (asegúrate de haber hecho 'az login' en el Codespace si es necesario)
+        credential = DefaultAzureCredential()
+        
+        service_client = DataLakeServiceClient(account_url=account_url, credential=credential)
+        
+        # Definir el sistema de archivos (FileSystem) y la ruta
+        # En Fabric, el FileSystem suele ser el Workspace ID
+        file_system_client = service_client.get_file_system_client(file_system=payload.workspaceId)
+        
+        # Ruta del archivo: MarkdownStore/Files/<itemId>.md
+        file_path = f"MarkdownStore/Files/{payload.itemId}.md"
+        
+        # Crear el cliente de archivo
+        file_client = file_system_client.get_file_client(file_path)
+        
+        # Contenido inicial
+        initial_content = "# Nuevo Documento\n\nCreado desde el Backend de Fabric."
+        
+        # Crear y escribir (sobrescribir si existe)
+        file_client.create_file()
+        file_client.upload_data(initial_content, overwrite=True)
+        
+        print(f"Archivo creado exitosamente en: {file_path}")
+        return {"message": "Archivo creado exitosamente", "path": file_path}
+
+    except Exception as e:
+        print(f"Error en CreateItem: {e}")
+        # Retornamos 500 pero con el detalle para depuración
+        raise HTTPException(status_code=500, detail=str(e))
